@@ -5,7 +5,8 @@ const DistrictsSchema = new Schema({
         type: String,
         trim: true,
         maxlength: 30,
-        required: true
+        required: true,
+        unique: true
     }
 });
 
@@ -14,7 +15,8 @@ const CitiesSchema = new Schema({
         type: String,
         trim: true,
         maxlength: 30,
-        required: true
+        required: true,
+        unique: true
     },
     districts: [DistrictsSchema]
 }); 
@@ -25,7 +27,7 @@ const StatesSchema = new Schema({
         trim: true,
         unique: true,
         maxlength: 30,
-        required: true
+        required: true,
     },
     cities: [CitiesSchema]
 });
