@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const uri = "mongodb://127.0.0.1:27017/bdaula2";
+const uri = process.env.DB_URI;
 
 const db = mongoose;
 

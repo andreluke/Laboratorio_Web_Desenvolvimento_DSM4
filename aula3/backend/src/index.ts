@@ -9,6 +9,7 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 
 const app = express(); // cria o servidor e coloca na variável app
+export default app
 
 // suportar parâmetros JSON no body da requisição
 app.use(express.json());
