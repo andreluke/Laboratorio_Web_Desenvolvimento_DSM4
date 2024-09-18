@@ -1,12 +1,12 @@
 {
   "compilerOptions": {
-    "module": "commonjs",  // Use "commonjs" para compatibilidade com Jest
-    "target": "ES6",
+    "target": "es6",
+    "module": "commonjs",
+    "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist"
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"]
+  "include": ["src/**/*.ts", "jest.setup.ts"],
+  "exclude": ["node_modules"]
 }

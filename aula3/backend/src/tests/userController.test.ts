@@ -1,55 +1,62 @@
-import request from "supertest";
-import app from "../index"; // O app Express
-import { connect, disconnect } from "../models/connection"; // Conexão ao banco de dados
+import request from 'supertest';
+import app from '../index'; // Assumindo que o Express app é exportado de 'app.ts'
+import { User } from '../models/index';
 
-beforeAll(async () => {
-    connect(); // Conecta ao banco antes de todos os testes
-});
+describe('UserController', () => {
+  beforeEach(async () => {
+    await User.deleteMany({});
+  });
 
-afterAll(async () => {
-    await disconnect(); // Desconecta após todos os testes
-});
+  it('deve criar um novo usuário', async () => {
+    const response = await request(app)
+      .post('/usuario')
+      .send({ nome: 'John Doe', email: 'john@example.com' })
+      .expect(200);
 
-describe("Rotas de Usuários", () => {
-    it("Deve criar um novo usuário", async () => {
-        const response = await request(app)
-            .post("/usuario")
-            .send({ nome: "Usuário Teste", email: "teste@example.com" });
-        expect(response.status).toBe(200);
-        expect(response.body.nome).toBe("Usuário Teste");
-    });
+    expect(response.body).toHaveProperty('_id');
+    expect(response.body.nome).toBe('John Doe');
+    expect(response.body.email).toBe('john@example.com');
+  });
 
-    it("Deve listar os usuários", async () => {
-        const response = await request(app).get("/usuario");
-        expect(response.status).toBe(200);
-        expect(response.body.length).toBeGreaterThan(0);
-    });
+  it('deve listar usuários', async () => {
+    await User.create({ nome: 'Jane Doe', email: 'jane@example.com' });
 
-    it("Deve atualizar o e-mail do usuário", async () => {
-        // Crie um usuário primeiro
-        const user = await request(app)
-            .post("/usuario")
-            .send({ nome: "Usuário Teste", email: "teste2@example.com" });
-        
-        const response = await request(app)
-            .put("/usuario/email")
-            .send({ id: user.body._id, email: "novoemail@example.com" });
+    const response = await request(app).get('/usuario').expect(200);
 
-        expect(response.status).toBe(200);
-        expect(response.body.email).toBe("novoemail@example.com");
-    });
+    expect(response.body.length).toBe(1);
+    expect(response.body[0].nome).toBe('Jane Doe');
+  });
 
-    it("Deve deletar um usuário", async () => {
-        // Crie um usuário primeiro
-        const user = await request(app)
-            .post("/usuario")
-            .send({ nome: "Usuário Deletável", email: "delete@example.com" });
+  it('deve deletar um usuário', async () => {
+    const user = await User.create({ nome: 'John Doe', email: 'john@example.com' });
 
-        const response = await request(app)
-            .delete("/usuario")
-            .send({ id: user.body._id });
+    const response = await request(app)
+      .delete('/usuario')
+      .send({ id: user._id })
+      .expect(200);
 
-        expect(response.status).toBe(200);
-        expect(response.body.nome).toBe("Usuário Deletável");
-    });
+    expect(response.body).toHaveProperty('_id', user._id.toString());
+  });
+
+  it('deve atualizar o email do usuário', async () => {
+    const user = await User.create({ nome: 'John Doe', email: 'john@example.com' });
+
+    const response = await request(app)
+      .put('/usuario/email')
+      .send({ id: user._id, email: 'john.updated@example.com' })
+      .expect(200);
+
+    expect(response.body.email).toBe('john.updated@example.com');
+  });
+
+  it('deve retornar erro ao tentar criar usuário com email duplicado', async () => {
+    await User.create({ nome: 'John Doe', email: 'john@example.com' });
+
+    const response = await request(app)
+      .post('/usuario')
+      .send({ nome: 'Jane Doe', email: 'john@example.com' })
+      .expect(409);
+
+    expect(response.body.message).toBe('O e-mail john@example.com já está em uso');
+  });
 });

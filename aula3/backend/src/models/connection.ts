@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
-const uri = process.env.DB_URI;
+
+const uri = "mongodb://localhost:27017/dbatividade3";
 
 const db = mongoose;
 

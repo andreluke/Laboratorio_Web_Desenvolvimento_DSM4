@@ -10,7 +10,7 @@ class UserController {
         }else{
         try {
             const response = await User.create({ nome, email});
-            res.send(response);
+            res.status(200).json(response);
         } catch (e: any) {
                 res.send({ message: e });
             }
@@ -51,20 +51,18 @@ class UserController {
                 }
             );
             if (response) {
-                res.json(response);
+                res.status(200).json(response);
             }
             else {
-                res.json({ message: "Registro inexistente" });
+                res.status(404).json({ message: "Registro inexistente" });
             }
         } catch (e: any) {
             if (e.code === 11000) {
-                res.send({ message: `O e-mail ${email} já está em uso` });
-            }
-            else if (e.errors?.mail) {
-                res.send({ message: e.errors.email.message });
-            }
-            else {
-                res.send({ message: e });
+                res.status(409).send({ message: `O e-mail ${email} já está em uso` });
+            } else if (e.errors?.email) {
+                res.status(400).send({ message: e.errors.email.message });
+            } else {
+                res.status(500).send({ message: "Erro no servidor" });
             }
         }
     }
