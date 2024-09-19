@@ -9,9 +9,16 @@ const UserSchema = new Schema({
     email:{
         type: String,
         trim: true,
-        maxlength: 30,
-        required: true,
-        unique: true
+        unique: true,
+        required: [true, "O e-mail é obrigatório"],
+        validate: {
+            validator: function (value: string) {
+            // expressão regular para validar o formato do e-mail
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(value);
+            },
+            message: (props:any) => `${props.value} não é um formato de e-mail válido`,
+    }
     }
 });
 
